@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Robot</title>
+    <link rel="stylesheet" type="text/css" href="C.css" />
+    <script type="text/javascript" src="path-to-javascript-script.js"></script>
+  </head>
+  <body class="noselect" onload="init">
+    <label class="switch">
+      <input type="checkbox" onblick="onoff()" />
+      <span class="slider round"></span>
+    </label>
+  </body>
+  <div id="joystick">
+    <center>Click anywhere to activate joystick</center>
+  </div>
+</html>
+
+<script src="./node_modules/nipplejs/dist/nipplejs.js"></script>
+<script>
+  var manager = nipplejs.create(options);
+</script>
+
+<script>
+  var Engine = false;
+  let anger = 0;
+  let dist = 0;
+  var manager = nipplejs.create({
+    zone: document.getElementById("joystick"),
+    mode: "dynamic",
+    color: "orange",
+    size: 400
+  });
+  cords();
+  connect();
+  function connect() {
+    //funktion som connectar frontend till backend
+    var mqtt_url = "maqiatto.com"; //Broker adressen som vi använder
+    var url = "mqtt://" + mqtt_url; //definerar det som ska vara innan url:n
+    var options = {
+      port: 8883, //porten för att publisha
+      //genererar ett random clientId för att annars skulle alla få samma
+      clientId:
+        "mqttjs" +
+        Math.random()
+          .toString(16)
+          .substr(2, 8),
+      username: "tea.edelborg@abbindustrigymnasium.se", //användarnamn
+      password: "Hejsan" //lösenord
+    };
+    console.log("connecting");
+    this.client = mqtt.connect(url, options);
+    console.log("connected?"); //frågar om det har connectat
+
+    this.client
+      .on("error", function() {
+        console.log("no"); // vid fel consol loggar "no"
+      })
+      .on("close", function() {
+        console.log("no"); // vid fel consol loggar "no"
+      });
+    this.connected = true;
+    console.log(this.connected); //loggar om den har connectat
+  }
+  function cords() {
+    manager.on("move", function(evt, data) {
+      console.log(data);
+      dist = data.distance;
+      anger = data.angle.degree;
+      fart = (dist / 200) * 1023;
+
+      if (anger <= 180) {
+        (direction = 0), //åker framåt
+          this.client.publish(
+            "tea.edelborg@abbindustrigymnasium.se/backforward",
+            direction
+          );
+      }
+    });
+  }
+  function onoff() {
+    console.log("hejsan");
+    this.client.publish(
+      "tea.edelborg@abbindustrigymnasium.se/drive",
+      this.Engine == true ? "1" : "0"
+    );
+  }
+</script>
+
+<style>
+  body {
+    height: 100%;
+    width: 100%;
+    background-color: #dedede;
+  }
+
+  .space-top {
+    padding-top: 10px;
+  }
+
+  .switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+  .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 100px;
+    left: 100;
+    right: 100;
+    bottom: 100;
+    background-color: #ccc;
+    -webkit-transition: 0.4s;
+    transition: 0.4s;
+  }
+
+  .slider:before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    -webkit-transition: 0.4s;
+    transition: 0.4s;
+  }
+
+  input:checked + .slider {
+    background-color: #2196f3;
+  }
+
+  input:focus + .slider {
+    box-shadow: 0 0 1px #2196f3;
+  }
+
+  input:checked + .slider:before {
+    -webkit-transform: translateX(26px);
+    -ms-transform: translateX(26px);
+    transform: translateX(26px);
+  }
+
+  .slider.round {
+    border-radius: 34px;
+  }
+
+  .slider.round:before {
+    border-radius: 50%;
+  }
+  #joystick {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 100%;
+    background: rgb(255, 255, 255);
+  }
+</style>
