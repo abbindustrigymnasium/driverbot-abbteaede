@@ -22,6 +22,7 @@
 </script>
 
 <script>
+  var send = false;
   var client = "";
   var Engine = false;
   var connected = false;
@@ -75,21 +76,30 @@
       console.log(data);
       dist = data.distance;
       anger = data.angle.degree;
-      fart = ((dist / 200) * 1023).toString();
+      fart = Math.round((dist / 200) * 1023).toString();
       console.log(fart);
 
-      if (anger >= 180 && anger <= 360) {
+      if (anger >= 180) {
         dir = "1";
+        angle = Math.round(anger - 180).toString();
       } else {
         dir = "0";
+        angle = Math.round(180 - anger).toString();
+        // angle = "0".repeat(3 - angle.length) + angle.toString();
       }
-      client.publish("tea.edelborg@abbindustrigymnasium.se/speed", fart);
-      client.publish("tea.edelborg@abbindustrigymnasium.se/backforward", dir);
+      if (send == true) {
+        client.publish("tea.edelborg@abbindustrigymnasium.se/speed", fart);
+        client.publish("tea.edelborg@abbindustrigymnasium.se/backforward", dir);
+        send = false;
+      }
     });
   }
 
   window.onload = function() {
     connect();
+    setInterval(() => {
+      send = true;
+    }, (1 / 10) * 1000);
   };
 </script>
 
