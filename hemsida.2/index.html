@@ -5,34 +5,27 @@
     <link rel="stylesheet" type="text/css" href="C.css" />
     <script type="text/javascript" src="path-to-javascript-script.js"></script>
   </head>
-  <body class="noselect" onload="init">
-    <label class="switch">
-      <input type="checkbox" onblick="onoff()" />
-      <span class="slider round"></span>
-    </label>
-  </body>
+  <body class="noselect"></body>
   <div id="joystick">
+    <!-- <label class="switch">
+      <input type="checkbox" onblick="onoff" />
+      <span class="slider round"></span>
+    </label> -->
     <center>Click anywhere to activate joystick</center>
   </div>
 </html>
 
 <script src="./node_modules/nipplejs/dist/nipplejs.js"></script>
+<script src="./node_modules/mqtt/dist/mqtt.js"></script>
 <script>
   var manager = nipplejs.create(options);
 </script>
 
 <script>
+  var client = "";
   var Engine = false;
-  let anger = 0;
-  let dist = 0;
-  var manager = nipplejs.create({
-    zone: document.getElementById("joystick"),
-    mode: "dynamic",
-    color: "orange",
-    size: 400
-  });
-  cords();
-  connect();
+  var connected = false;
+
   function connect() {
     //funktion som connectar frontend till backend
     var mqtt_url = "maqiatto.com"; //Broker adressen som vi använder
@@ -49,56 +42,69 @@
       password: "Hejsan" //lösenord
     };
     console.log("connecting");
-    this.client = mqtt.connect(url, options);
+    client = mqtt.connect(url, options);
     console.log("connected?"); //frågar om det har connectat
 
-    this.client
+    client
       .on("error", function() {
         console.log("no"); // vid fel consol loggar "no"
       })
       .on("close", function() {
         console.log("no"); // vid fel consol loggar "no"
       });
-    this.connected = true;
-    console.log(this.connected); //loggar om den har connectat
+    connected = true;
+    console.log(connected); //loggar om den har connectat
+    if (connected == true) {
+      console.log("hejsan");
+      client.publish("tea.edelborg@abbindustrigymnasium.se/drive", "1");
+    }
   }
+  let anger = 0;
+  let dist = 0;
+  let dir = 0;
+  let speed = 0;
+  var manager = nipplejs.create({
+    zone: document.getElementById("joystick"),
+    mode: "dynamic",
+    color: "orange",
+    size: 400
+  });
+  cords();
   function cords() {
     manager.on("move", function(evt, data) {
       console.log(data);
       dist = data.distance;
       anger = data.angle.degree;
-      fart = (dist / 200) * 1023;
+      fart = ((dist / 200) * 1023).toString();
+      console.log(fart);
 
-      if (anger <= 180) {
-        (direction = 0), //åker framåt
-          this.client.publish(
-            "tea.edelborg@abbindustrigymnasium.se/backforward",
-            direction
-          );
+      if (anger >= 180 && anger <= 360) {
+        dir = "1";
+      } else {
+        dir = "0";
       }
+      client.publish("tea.edelborg@abbindustrigymnasium.se/speed", fart);
+      client.publish("tea.edelborg@abbindustrigymnasium.se/backforward", dir);
     });
   }
-  function onoff() {
-    console.log("hejsan");
-    this.client.publish(
-      "tea.edelborg@abbindustrigymnasium.se/drive",
-      this.Engine == true ? "1" : "0"
-    );
-  }
+
+  window.onload = function() {
+    connect();
+  };
 </script>
 
 <style>
   body {
     height: 100%;
     width: 100%;
-    background-color: #dedede;
+    background-color: rgb(255, 255, 255);
   }
 
   .space-top {
     padding-top: 10px;
   }
 
-  .switch input {
+  /* .switch input {
     opacity: 0;
     width: 0;
     height: 0;
@@ -107,10 +113,10 @@
     position: absolute;
     cursor: pointer;
     top: 100px;
-    left: 100;
+    left: 100px;
     right: 100;
     bottom: 100;
-    background-color: #ccc;
+    background-color: #a9a9a9;
     -webkit-transition: 0.4s;
     transition: 0.4s;
   }
@@ -122,7 +128,7 @@
     width: 26px;
     left: 4px;
     bottom: 4px;
-    background-color: white;
+    background-color: #808080;
     -webkit-transition: 0.4s;
     transition: 0.4s;
   }
@@ -147,13 +153,13 @@
 
   .slider.round:before {
     border-radius: 50%;
-  }
+  } */
   #joystick {
     position: absolute;
-    left: 0;
+    left: 100px;
     top: 0;
-    height: 100%;
-    width: 100%;
+    height: 90%;
+    width: 90%;
     background: rgb(255, 255, 255);
   }
 </style>
