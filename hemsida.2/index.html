@@ -63,6 +63,7 @@
   let anger = 0;
   let dist = 0;
   let dir = 0;
+  let angle = 0;
   let speed = 0;
   var manager = nipplejs.create({
     zone: document.getElementById("joystick"),
@@ -90,6 +91,7 @@
       if (send == true) {
         client.publish("tea.edelborg@abbindustrigymnasium.se/speed", fart);
         client.publish("tea.edelborg@abbindustrigymnasium.se/backforward", dir);
+        client.publish("tea.edelborg@abbindustrigymnasium.se/deg", angle);
         send = false;
       }
     });
