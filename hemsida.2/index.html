@@ -19,7 +19,10 @@
 <script src="./node_modules/mqtt/dist/mqtt.js"></script>
 <script>
   var manager = nipplejs.create(options);
-  const refreshRate = 100;
+
+</script>
+<script>
+    const refreshRate = 100;
   const output = document.getElementById("output");
 
   setInterval(getGamepadState, refreshRate);
@@ -58,7 +61,6 @@
     output.innerHTML += `${date}: ${message}\n`;
   }
 </script>
-
 <script>
   var send = false;
   var client = "";
