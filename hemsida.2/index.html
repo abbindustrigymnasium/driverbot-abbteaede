@@ -19,6 +19,44 @@
 <script src="./node_modules/mqtt/dist/mqtt.js"></script>
 <script>
   var manager = nipplejs.create(options);
+  const refreshRate = 100;
+  const output = document.getElementById("output");
+
+  setInterval(getGamepadState, refreshRate);
+
+  function getGamepadState() {
+    // Returns up to 4 gamepads.
+    const gamepads = navigator.getGamepads();
+
+    // We take the first one, for simplicity
+    const gamepad = gamepads[0];
+
+    // Escape if no gamepad was found
+    if (!gamepad) {
+      console.log("No gamepad found.");
+      return;
+    }
+
+    // Filter out only the buttons which are pressed
+    const pressedButtons = gamepad.buttons
+      .map((button, id) => ({ id, button }))
+      .filter(isPressed);
+
+    // Print the pressed buttons to our HTML
+    for (const button of pressedButtons) {
+      console.log(button);
+      log(`Button ${button.id} was pressed.`);
+    }
+  }
+
+  function isPressed({ button: { pressed } }) {
+    return !!pressed;
+  }
+
+  function log(message) {
+    const date = new Date().toISOString();
+    output.innerHTML += `${date}: ${message}\n`;
+  }
 </script>
 
 <script>
@@ -115,57 +153,6 @@
   .space-top {
     padding-top: 10px;
   }
-
-  /* .switch input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-  }
-  .slider {
-    position: absolute;
-    cursor: pointer;
-    top: 100px;
-    left: 100px;
-    right: 100;
-    bottom: 100;
-    background-color: #a9a9a9;
-    -webkit-transition: 0.4s;
-    transition: 0.4s;
-  }
-
-  .slider:before {
-    position: absolute;
-    content: "";
-    height: 26px;
-    width: 26px;
-    left: 4px;
-    bottom: 4px;
-    background-color: #808080;
-    -webkit-transition: 0.4s;
-    transition: 0.4s;
-  }
-
-  input:checked + .slider {
-    background-color: #2196f3;
-  }
-
-  input:focus + .slider {
-    box-shadow: 0 0 1px #2196f3;
-  }
-
-  input:checked + .slider:before {
-    -webkit-transform: translateX(26px);
-    -ms-transform: translateX(26px);
-    transform: translateX(26px);
-  }
-
-  .slider.round {
-    border-radius: 34px;
-  }
-
-  .slider.round:before {
-    border-radius: 50%;
-  } */
   #joystick {
     position: absolute;
     left: 100px;
