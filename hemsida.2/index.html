@@ -5,9 +5,18 @@
     <link rel="stylesheet" type="text/css" href="C.css" />
     <script type="text/javascript" src="path-to-javascript-script.js"></script>
   </head>
-  <body class="noselect"></body>
+  <body class="noselect">
+    <div class="switch-control">
+      <div class="innerDiv">
+        <label style="padding-right: 22px;" for="switch2">On/Off</label
+        ><input type="checkbox" id="switch2" onclick="Start()"/>
+      </div>
+    </div>
+  </body>
   <div id="joystick">
     <center>Click anywhere to activate joystick</center>
+  </div>
+  
   </div>
 </html>
 
@@ -24,6 +33,15 @@
   var Engine = false;
   var connected = false;
 
+  function Start(){ //Om boxen är i klickad startas bilen
+    if (switch2.checked == true) {
+      console.log("hejsan");
+      client.publish("tea.edelborg@abbindustrigymnasium.se/drive", "1");
+  }
+  else {
+    client.publish("tea.edelborg@abbindustrigymnasium.se/drive", "0");
+  }
+  }
   function connect() {
     //funktion som connectar frontend till backend
     var mqtt_url = "maqiatto.com"; //Broker adressen som vi använder
@@ -48,11 +66,8 @@
       });
     connected = true;
     console.log(connected); //loggar om den har connectat
-    if (connected == true) {
-      console.log("hejsan");
-      client.publish("tea.edelborg@abbindustrigymnasium.se/drive", "1");
-    } //om den har connectat skickar den 1 till att den sätts på
-  }
+    
+    } 
   let anger = 0; //definerar värden som används i joysticken och till de som skickas till roboten
   let dist = 0;
   let dir = 0;
@@ -124,11 +139,27 @@
   }
   #joystick {
     position: absolute;
-    left: 100px;
-    top: 0;
-    height: 90%;
-    width: 90%;
+    left: 50px;
+    top: 50px;
+    height: 80%;
+    width: 80%;
     background: rgb(255, 255, 255);
   }
   /*Inställningarna hos joysticken */
+  .switch-control {
+    margin: 0 auto;
+    width: 140px;
+  }
+  .switch-control .innerDiv {
+    padding-bottom: 17px;
+    display: flex;
+    align-items: center;
+  }
+  .switch-control label {
+    font-size: 14px;
+    font-family: "Segoe UI", "GeezaPro", "DejaVu Serif", sans-serif;
+    font-weight: normal;
+    cursor: pointer;
+    user-select: none;
+  }
 </style>
