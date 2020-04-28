@@ -19,46 +19,199 @@
 <script src="./node_modules/mqtt/dist/mqtt.js"></script>
 <script>
   var manager = nipplejs.create(options);
-  const refreshRate = 100;
-  const output = document.getElementById("output");
-
-  setInterval(getGamepadState, refreshRate);
-
-  function getGamepadState() {
-    // Returns up to 4 gamepads.
-    const gamepads = navigator.getGamepads();
-
-    // We take the first one, for simplicity
-    const gamepad = gamepads[0];
-
-    // Escape if no gamepad was found
-    if (!gamepad) {
-      console.log("No gamepad found.");
-      return;
-    }
-
-    // Filter out only the buttons which are pressed
-    const pressedButtons = gamepad.buttons
-      .map((button, id) => ({ id, button }))
-      .filter(isPressed);
-
-    // Print the pressed buttons to our HTML
-    for (const button of pressedButtons) {
-      console.log(button);
-      log(`Button ${button.id} was pressed.`);
-    }
-  }
-
-  function isPressed({ button: { pressed } }) {
-    return !!pressed;
-  }
-
-  function log(message) {
-    const date = new Date().toISOString();
-    output.innerHTML += `${date}: ${message}\n`;
-  }
 </script>
+<script>
+  // const refreshRate = 100;
+  // const output = document.getElementById("output");
 
+  // setInterval(getGamepadState, refreshRate);
+
+  // function getGamepadState() {
+  //   // Returns up to 4 gamepads.
+  //   const gamepads = navigator.getGamepads();
+
+  //   // We take the first one, for simplicity
+  //   const gamepad = gamepads[0];
+
+  //   // Escape if no gamepad was found
+  //   if (!gamepad) {
+  //     console.log("No gamepad found.");
+  //     return;
+  //   }
+
+  //   // Filter out only the buttons which are pressed
+  //   const pressedButtons = gamepad.buttons
+  //     .map((button, id) => ({ id, button }))
+  //     .filter(isPressed);
+
+  //   const usedAxes = gamepad.axes.map((axes, id) => ({ id, axes }));
+  //   //.filter(isPressed);
+  //   if ((go = true)) {
+  //     console.log(usedAxes);
+  //     go = false;
+  //   }
+  //   // Print the pressed buttons to our HTML
+  //   for (const button of pressedButtons) {
+  //     console.log(button);
+  //     log(`Button ${button.id} was pressed.`);
+  //   }
+  // }
+
+  // function isPressed({ button: { pressed } }) {
+  //   return !!pressed;
+  // }
+
+  // function log(message) {
+  //   const date = new Date().toISOString();
+  //   output.innerHTML += `${date}: ${message}\n`;
+  // }
+  // window.onload = function () {
+  //   setInterval(() => {
+  //     send = true;
+  //   }, (1 / 1000) * 1000);
+  // };
+  var haveEvents = "ongamepadconnected" in window;
+  var controllers = {};
+  var go = false;
+
+  function connecthandler(e) {
+    addgamepad(e.gamepad);
+  }
+
+  function addgamepad(gamepad) {
+    controllers[gamepad.index] = gamepad;
+
+    var d = document.createElement("div");
+    d.setAttribute("id", "controller" + gamepad.index);
+
+    var t = document.createElement("h1");
+    t.appendChild(document.createTextNode("gamepad: " + gamepad.id));
+    d.appendChild(t);
+
+    var b = document.createElement("div");
+    b.className = "buttons";
+    for (var i = 0; i < gamepad.buttons.length; i++) {
+      var e = document.createElement("span");
+      e.className = "button";
+      //e.id = "b" + i;
+      e.innerHTML = i;
+      b.appendChild(e);
+    }
+
+    d.appendChild(b);
+
+    var a = document.createElement("div");
+    a.className = "axes";
+
+    for (var i = 0; i < gamepad.axes.length; i++) {
+      var p = document.createElement("progress");
+      p.className = "axis";
+      //p.id = "a" + i;
+      p.setAttribute("max", "2");
+      p.setAttribute("value", "1");
+      p.innerHTML = i;
+      a.appendChild(p);
+    }
+
+    d.appendChild(a);
+
+    // See https://github.com/luser/gamepadtest/blob/master/index.html
+    var start = document.getElementById("start");
+    if (start) {
+      start.style.display = "none";
+    }
+
+    document.body.appendChild(d);
+    requestAnimationFrame(updateStatus);
+  }
+
+  function disconnecthandler(e) {
+    removegamepad(e.gamepad);
+  }
+
+  function removegamepad(gamepad) {
+    var d = document.getElementById("controller" + gamepad.index);
+    document.body.removeChild(d);
+    delete controllers[gamepad.index];
+  }
+
+  function updateStatus() {
+    if (!haveEvents) {
+      scangamepads();
+    }
+
+    var i = 0;
+    var j;
+
+    for (j in controllers) {
+      var controller = controllers[j];
+      var d = document.getElementById("controller" + j);
+      var buttons = d.getElementsByClassName("button");
+
+      for (i = 0; i < controller.buttons.length; i++) {
+        var b = buttons[i];
+        var val = controller.buttons[i];
+        var pressed = val == 1.0;
+        if (typeof val == "object") {
+          pressed = val.pressed;
+          val = val.value;
+        }
+
+        var pct = Math.round(val * 100) + "%";
+        b.style.backgroundSize = pct + " " + pct;
+
+        if (pressed) {
+          b.className = "button pressed";
+        } else {
+          b.className = "button";
+        }
+      }
+
+      var axes = d.getElementsByClassName("axis");
+      for (i = 0; i < controller.axes.length; i++) {
+        var a = axes[i];
+        a.innerHTML = i + ": " + controller.axes[i].toFixed(4);
+        a.setAttribute("value", controller.axes[i] + 1);
+        // console.log(axes[i]);
+        if ((go = true)) {
+          console.log(axes);
+          go = false;
+        }
+      }
+    }
+
+    requestAnimationFrame(updateStatus);
+  }
+
+  function scangamepads() {
+    var gamepads = navigator.getGamepads
+      ? navigator.getGamepads()
+      : navigator.webkitGetGamepads
+      ? navigator.webkitGetGamepads()
+      : [];
+    for (var i = 0; i < gamepads.length; i++) {
+      if (gamepads[i]) {
+        if (gamepads[i].index in controllers) {
+          controllers[gamepads[i].index] = gamepads[i];
+        } else {
+          addgamepad(gamepads[i]);
+        }
+      }
+    }
+  }
+
+  window.addEventListener("gamepadconnected", connecthandler);
+  window.addEventListener("gamepaddisconnected", disconnecthandler);
+
+  if (!haveEvents) {
+    setInterval(scangamepads, 500);
+  }
+  window.onload = function () {
+    setInterval(() => {
+      go = true;
+    }, (1 / 100) * 1000);
+  };
+</script>
 <script>
   var send = false;
   var client = "";
@@ -72,23 +225,19 @@
     var options = {
       port: 8883, //porten för att publisha
       //genererar ett random clientId för att annars skulle alla få samma
-      clientId:
-        "mqttjs" +
-        Math.random()
-          .toString(16)
-          .substr(2, 8),
+      clientId: "mqttjs" + Math.random().toString(16).substr(2, 8),
       username: "tea.edelborg@abbindustrigymnasium.se", //användarnamn
-      password: "Hejsan" //lösenord
+      password: "Hejsan", //lösenord
     };
     console.log("connecting");
     client = mqtt.connect(url, options);
     console.log("connected?"); //frågar om det har connectat
 
     client
-      .on("error", function() {
+      .on("error", function () {
         console.log("no"); // vid fel consol loggar "no"
       })
-      .on("close", function() {
+      .on("close", function () {
         console.log("no"); // vid fel consol loggar "no"
       });
     connected = true;
@@ -107,11 +256,11 @@
     zone: document.getElementById("joystick"),
     mode: "dynamic",
     color: "orange",
-    size: 400
+    size: 400,
   });
   cords();
   function cords() {
-    manager.on("move", function(evt, data) {
+    manager.on("move", function (evt, data) {
       console.log(data);
       dist = data.distance;
       anger = data.angle.degree;
@@ -120,26 +269,37 @@
 
       if (anger >= 180) {
         dir = "1";
-        angle = Math.round(anger - 180).toString();
+        // angle = anger;
+        angle = Math.round(360 - anger).toString();
+        // if (angle > 0 && angle < 180) {
+        //   //fortsätt här
+        // }
+        angle = "0".repeat(3 - angle.length) + angle.toString();
       } else {
         dir = "0";
-        angle = Math.round(180 - anger).toString();
-        // angle = "0".repeat(3 - angle.length) + angle.toString();
+        angle = anger;
+        // angle = Math.round(180 - anger).toString();
+        angle = "0".repeat(3 - angle.length) + angle.toString();
       }
-      if (send == true) {
-        client.publish("tea.edelborg@abbindustrigymnasium.se/speed", fart);
-        client.publish("tea.edelborg@abbindustrigymnasium.se/backforward", dir);
-        client.publish("tea.edelborg@abbindustrigymnasium.se/deg", angle);
-        send = false;
-      }
+      // if (angle > 140) {
+      //   angle = 140;
+      // } else if (angle < 40) {
+      //   angle = 40;
+      // }
+      // angle = angle.toString();
+    });
+    manager.on("end", function () {
+      client.publish("tea.edelborg@abbindustrigymnasium.se/speed", fart);
+      client.publish("tea.edelborg@abbindustrigymnasium.se/backforward", dir);
+      client.publish("tea.edelborg@abbindustrigymnasium.se/deg", angle);
     });
   }
 
-  window.onload = function() {
+  window.onload = function () {
     connect();
-    setInterval(() => {
-      send = true;
-    }, (1 / 10) * 1000);
+    // setInterval(() => {
+    //   send = true;
+    // }, (1 / 70) * 1000);
   };
 </script>
 
