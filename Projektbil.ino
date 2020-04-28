@@ -57,6 +57,7 @@ void onConnectionEstablished() //funktion hämtar värdena från mqtt och gör o
     {
       digitalWrite(motorPinRightDir, 0);
       digitalWrite(motorPinLeftDir, 0);
+      mittservo.write(90);
     }
     }
   });
@@ -75,7 +76,10 @@ void onConnectionEstablished() //funktion hämtar värdena från mqtt och gör o
   });
   client.subscribe("tea.edelborg@abbindustrigymnasium.se/deg", [](const String &payload) { //hämtar vinkeln till servot
     deg= payload.toInt(); //gör om det till en int
+    if (go == 1) 
+    {
     mittservo.write(deg); //sätter servot till det värdet
+    }
   });
 }
 void loop() {
