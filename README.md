@@ -1,4 +1,8 @@
-# Loggbok för projektet driverbot
+## Extra
+
+### Problem under vägen
+- Jag hade väldigt svårt att få till rätt värden till servot eftersom det endast svängar 180 grader medans joysticken svänger 360 grader. Det tog lång tid innan jag fattade vad som blev fel och det var att den hela tiden svängde åt motsatta hål utom när den skulle svänga vänster. Med lite hjälp fixade jag sedan problemet.
+### Loggbok för projektet driverbot
 23/3-2020
 - Jag började med min kod i arduino så att den kopplade upp till mqtt och kunde göra enkla styrningar med mqtt
 
