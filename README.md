@@ -6,7 +6,7 @@ För att ändra styrningen finns det en joystick på hemsidan som kan snurra 360
 Motorn som används är en TT-motor och servot är ett SG90.
 
 ## Hur det fungerar
-![Diagram!](https://github.com/abbindustrigymnasium/driverbot-abbteaede/blob/master/DriverBotDiagram.png)
+![Diagram!](https://github.com/abbindustrigymnasium/driverbot-abbteaede/blob/master/DriverBotFl%C3%B6desDiagram.png)
 ## Extra
 
 ### Problem under vägen
