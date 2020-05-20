@@ -3,6 +3,8 @@ Bilen är byggd i lego med 3d printade delar för servo och motor. Styrningen sk
 
 För att ändra styrningen finns det en joystick på hemsidan som kan snurra 360 grader och sedan ändrar koden värdena för att se om bilen ska åka bakåt/framåt, hur snabbt och hur hjulen ska svänga.
 
+Motorn som används är en TT-motor och servot är ett SG90.
+
 ## Hur det fungerar
 
 ## Extra
