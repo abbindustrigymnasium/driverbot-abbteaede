@@ -9,6 +9,16 @@ Joysticken är ifrån - https://github.com/yoannmoinet/nipplejs
 
 ## Hur det fungerar
 ![Diagram!](https://github.com/abbindustrigymnasium/driverbot-abbteaede/blob/master/DriverBotFl%C3%B6desDiagram.png)
+
+### Hemsidan
+Hemsidan går ut på att endast ha en joystick gjord för roboten för att enkelt kunna styra genom internet. På hemsidan finns en checkbox för att kunna köra bilen och sedan kan man trycka vart som helst på skrämen för att aktivera en joystick som hämtar värdena där man släpper joysticken. När joysticken släpps skickas värdena och bilen ändrar till de nya inställningarna snabbt. Värdena som skickas är farten, fram eller bak och hur mycket den ska svänga.
+
+### Styrningen
+Eftersom jag använder mig av en färdig joystick från nipplejs så tar jag distansen från radien genom radien multiplicerat med 1023 för att få farten min motor ska ha. Om man drar längst ut på joysticken kommer roboten därför åka i 1023. Eftersom joysticken är 360 grader och servot bara 180 grader, så har jag läst av värdena jag fått och fått fram att om det är över 180 grader ska den åka bakåt. Annars åker den framåt och graderna görs om för att det ska bli rätt för om den åker framåt eller bakåt. Det finns även ett max värde för hur mycket servot kan svänga vilket gör att den inte kan svänga 180 grader.
+
+### MQTT brokern
+För att skicka över värdena använder jag mig av https://www.maqiatto.com/ som tillåter dig att subscribea vilket jag gör i arduino och publisha vilket jag gör på hemsidan. Det finns även olika topics som gör att jag kan skicka i olika topics för olika ärenden, som fart eller hur mycket servot ska svänga. Eftersom maqiatto inte loggar värdena någonstans kan bilen inte hämta gamla värden utan det går bara att hämta värden som skickas när man är subscribad.
+
 ## Extra
 
 ### Problem under vägen
